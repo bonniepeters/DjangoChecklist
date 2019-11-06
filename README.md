@@ -190,7 +190,7 @@ urlpatterns = [
 
 {% endblock %}
 ```
-### Show Template
+### READ
 
 - [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_detail.html```
 
@@ -212,7 +212,7 @@ urlpatterns = [
 
 {% endblock %}
 ```
-## CREATE Form / Template
+## CREATE(Form)
 
 - [ ] Create a ```forms.py``` file in ```myapp```:
 ```python
@@ -262,11 +262,56 @@ path('primary/new', views.primary_create, name='primary_create'),
 ```html
 <h2>Primary <a href="{% url 'primary_create' %}">(+)</a></h2>
 ```
+
+## UPDATE
+
+- [ ] Add Edit View:
+```python
+# tunr/views.py
+def primary_edit(request, pk):
+    artist = Primary.objects.get(pk=pk)
+    if request.method == "POST":
+        form = PrimaryForm(request.POST, instance=primary)
+        if form.is_valid():
+            primary = form.save()
+            return redirect('primary_detail', pk=primary.pk)
+    else:
+        form = PrimaryForm(instance=primary)
+    return render(request, 'tunr/primary_form.html', {'form': form})
+```
+- [ ] Add Edit URL:
+```python
+# tunr/urls.py
+path('primary/<int:pk>/edit', views.primary_edit, name='primary_edit'),
+```
+- [ ] Add Edit Link in Detail Template:
+```html
+<!-- tunr/templates/myapp/primary_detail.html -->
+<h2>
+  {{ primary.name }} <a href="{% url 'primary_edit' pk=primary.pk %}">(edit)</a>
+</h2>
+```
+
+## DELETE
+
+- [ ] Add Delete View
+```python
+# myapp/views.py
+def primary_delete(request, pk):
+    Primary.objects.get(id=pk).delete()
+    return redirect('primary_list')
+```
+- [ ] Add Delete URL:
+```python
+# tunr/urls.py
+path('artists/<int:pk>/delete', views.artist_delete, name='artist_delete'),
+```
+
 ## CSS Styling
 
 - [ ] In ```myapp``` create a ```static``` directory with a ```css``` subdirectory
 
-- [ ] Create myapp.css file: ```myapp/static/css/myapp.css```
+- [ ] In ```static```'s ```css``` subdirectory create base ```myapp.css```
 
 - [ ] Add static folder to ```base.html```:
 ```html
