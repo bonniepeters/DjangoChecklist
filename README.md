@@ -48,7 +48,14 @@ DATABASES = {
 }
 ```
 
-- [ ] Add ```myapp``` to the last line of ```INSTALLED_APPS``` in ```my_project/settings.py```
+- [ ] Add ```myapp``` to installed apps:
+```python
+# my_project/settings.py
+INSTALLED_APPS = [
+  '...',
+  'myapp'
+]
+```
 
 - [ ] Start server: ```python3 manage.py runserver```
 
@@ -58,7 +65,7 @@ DATABASES = {
 
 - [ ] Create desired models in ```myapp/models.py```:
 
-```
+```python
 class Primary(models.Model):
     name = models.CharField(max_length=100)
 
@@ -87,9 +94,9 @@ NOTE: Every time you make changes to your models, run ```makemigrations``` again
 
 - [ ] Fill in the info in the boxes that pop up.
 
-- [ ] Update ```myapp/admin.py```:
+- [ ] Import models in ```myapp/admin.py```:
 
-```
+```python
 from django.contrib import admin
 from .models import Primary, Secondary
 
@@ -97,12 +104,14 @@ admin.site.register(Primary, Secondary)
 ```
 ## Views
 
-- [ ] Import models in ```myapp/views.py``` and create list view endpoint:
-```
+- [ ] Import models in ```myapp/views.py```:
+```python
 from django.shortcuts import render
 
 from .models import Primary, Secondary
-
+```
+- [ ] Create views:
+```python
 # List View
 def primary_list(request):
     primaries = Primary.objects.all()
@@ -115,8 +124,8 @@ def primary_detail(request, pk):
  ```
  ## URLs
  
- - [ ] Update ```my_project/urls.py```:
- ```
+ - [ ] Import paths, include, and admin in ```my_project/urls.py```:
+ ```python
 from django.conf.urls import include
 from django.urls import path
 from django.contrib import admin
@@ -128,7 +137,7 @@ urlpatterns = [
 ```
 
 - [ ] Create ```myapp/urls.py```:
-```
+```python
 from django.urls import path
 from . import views
 
@@ -146,11 +155,11 @@ urlpatterns = [
 
 ### Base
 
-- [ ] Create base HTML file: ```myapp/templates/myapp/base.html```
+- [ ] In ```templates```'s ```myapp``` subdirectory create base ```base.html```
 
 - [ ] Add HTML5 boilerplate to ```base.html```
 
-- [ ] Build out base template:
+- [ ] Build out ```base.html``` template:
 ```
   <body>
     <h1>MyApp</h1>
@@ -163,9 +172,9 @@ urlpatterns = [
 
 ### List Template
 
-- [ ] Create list HTML file: ```myapp/templates/myapp/primary_list.html```
+- [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_list.html```
 
-- [ ] Build out list template:
+- [ ] Build out ```primary_list.html``` template:
 ```
 {% extends 'tunr/base.html' %}
 {% block content %}
@@ -183,9 +192,9 @@ urlpatterns = [
 ```
 ### Show Template
 
-- [ ] Create detail/show HTML file: ```myapp/templates/myapp/primary_detail.html```
+- [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_detail.html```
 
-- [ ] Build out detail template:
+- [ ] Build out ```primary_detail.html``` template:
 ```
 {% extends 'tunr/base.html' %}
 {% block content %}
