@@ -34,8 +34,9 @@ NOTE: ```my_project``` is the base django project where we will handle our route
 > \q
 ```
 
-- [ ] Add Database details to ```my_project/settings.py```:
+- [ ] Add Database details:
 ```
+# my_project/settings.py
 DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.postgresql',
@@ -139,12 +140,13 @@ urlpatterns = [
 ]
 ```
 
-## Templates
+## READ / Templates
 
 - [ ] In ```myapp``` create a ```templates``` directory with a ```myapp``` subdirectory
-# Base
 
-- [ ] Create base HTML file: ```myapp/templates/mapp/base.html```
+### Base
+
+- [ ] Create base HTML file: ```myapp/templates/myapp/base.html```
 
 - [ ] Add HTML5 boilerplate to ```base.html```
 
@@ -159,9 +161,9 @@ urlpatterns = [
   </body>
 ```
 
-# List Template
+### List Template
 
-- [ ] Create list HTML file: ```myapp/templates/mapp/primary_list.html```
+- [ ] Create list HTML file: ```myapp/templates/myapp/primary_list.html```
 
 - [ ] Build out list template:
 ```
@@ -179,9 +181,9 @@ urlpatterns = [
 
 {% endblock %}
 ```
-# Show Template
+### Show Template
 
-- [ ] Create detail/show HTML file: ```myapp/templates/mapp/primary_detail.html```
+- [ ] Create detail/show HTML file: ```myapp/templates/myapp/primary_detail.html```
 
 - [ ] Build out detail template:
 ```
@@ -201,4 +203,22 @@ urlpatterns = [
 
 {% endblock %}
 ```
+## CREATE Form / Template
+
+- [ ] Create form HTML file: ```myapp/templates/myapp/primary_form.html```
+
+
 ## CSS Styling
+
+- [ ] In ```myapp``` create a ```static``` directory with a ```css``` subdirectory
+
+- [ ] Create myapp.css file: ```myapp/static/css/myapp.css```
+
+- [ ] Add static folder to ```base.html```:
+```
+{% load staticfiles %}
+  <head>
+    <title>MyApp</title>
+    <link rel="stylesheet" href="{% static 'css/myapp.css' %}" />
+  </head>
+```
