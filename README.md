@@ -58,28 +58,29 @@ DATABASES = {
 - [ ] Create desired models in ```myapp/models.py```:
 
 ```
-class Main(models.Model):
+class Primary(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
 
 class Secondary(models.Model):
-    main = models.ForeignKey(Main, on_delete=models.CASCADE, related_name='secondaries')
+    primary = models.ForeignKey(Primary, on_delete=models.CASCADE, related_name='secondaries')
     title = models.CharField(max_length=100, default='untitled')
 
     def __str__(self):
-        return f"{self.main.name} - {self.title}"
+        return f"{self.primary.name} - {self.title}"
 ```
 
 ## Migrations
 
 - [ ] Stage migration to the database: ```python3 manage.py makemigrations```
+
 NOTE: Every time you make changes to your models, run ```makemigrations``` again.
 
 - [ ] Migrate staged changes: ```python3 manage.py migrate```
 
-## Django Admin Console
+## Admin Console
 
 - [ ] Create a super user: ```python3 manage.py createsuperuser```
 
@@ -89,7 +90,115 @@ NOTE: Every time you make changes to your models, run ```makemigrations``` again
 
 ```
 from django.contrib import admin
-from .models import Example
+from .models import Primary, Secondary
 
-admin.site.register(Example)
+admin.site.register(Primary, Secondary)
 ```
+## Views
+
+- [ ] Import models in ```myapp/views.py``` and create list view endpoint:
+```
+from django.shortcuts import render
+
+from .models import Primary, Secondary
+
+# List View
+def primary_list(request):
+    primaries = Primary.objects.all()
+    return render(request, 'myapp/primary_list.html', {'primaries': primaries})
+    
+# Show View
+def primary_detail(request, pk):
+    primary = Primary.objects.get(id=pk)
+    return render(request, 'mya/artist_detail.html', {'artist': artist})
+ ```
+ ## URLs
+ 
+ - [ ] Update ```my_project/urls.py```:
+ ```
+from django.conf.urls import include
+from django.urls import path
+from django.contrib import admin
+
+urlpatterns = [
+    path('admin', admin.site.urls),
+    path('', include('myapp.urls')),
+]
+```
+
+- [ ] Create ```myapp/urls.py```:
+```
+from django.urls import path
+from . import views
+
+urlpatterns = [
+# List URL
+    path('', views.primary_list, name='primary_list'),
+# Show URL
+    path('primaries/<int:pk>', views.primary_detail, name='primary_detail'),
+]
+```
+
+## Templates
+
+- [ ] In ```myapp``` create a ```templates``` directory with a ```myapp``` subdirectory
+# Base
+
+- [ ] Create base HTML file: ```myapp/templates/mapp/base.html```
+
+- [ ] Add HTML5 boilerplate to ```base.html```
+
+- [ ] Build out base template:
+```
+  <body>
+    <h1>MyApp</h1>
+    <nav>
+      <a href="{% url 'primary_list' %}">Primaries</a>
+    </nav>
+    {% block content %} {% endblock %}
+  </body>
+```
+
+# List Template
+
+- [ ] Create list HTML file: ```myapp/templates/mapp/primary_list.html```
+
+- [ ] Build out list template:
+```
+{% extends 'tunr/base.html' %}
+{% block content %}
+
+<h2>Primaries <a href="">(+)</a></h2>
+<ul>
+  {% for primary in primaries %}
+  <li>
+    <a href="{% url 'primary_detail' pk=primary.pk %}">{{ primary.name }}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock %}
+```
+# Show Template
+
+- [ ] Create detail/show HTML file: ```myapp/templates/mapp/primary_detail.html```
+
+- [ ] Build out detail template:
+```
+{% extends 'tunr/base.html' %}
+{% block content %}
+
+<h2>{{ primary.name }} <a href="">(edit)</a></h2>
+
+<h3>Secondaries <a href="">(+)</a></h3>
+<ul>
+  {% for secondary in primary.secondaries.all %}
+  <li>
+    <a href="">{{ secondary.title }}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+{% endblock %}
+```
+## CSS Styling
