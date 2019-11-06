@@ -160,7 +160,7 @@ urlpatterns = [
 - [ ] Add HTML5 boilerplate to ```base.html```
 
 - [ ] Build out ```base.html``` template:
-```
+```html
   <body>
     <h1>MyApp</h1>
     <nav>
@@ -175,7 +175,7 @@ urlpatterns = [
 - [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_list.html```
 
 - [ ] Build out ```primary_list.html``` template:
-```
+```html
 {% extends 'tunr/base.html' %}
 {% block content %}
 
@@ -195,7 +195,7 @@ urlpatterns = [
 - [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_detail.html```
 
 - [ ] Build out ```primary_detail.html``` template:
-```
+```html
 {% extends 'tunr/base.html' %}
 {% block content %}
 
@@ -214,9 +214,54 @@ urlpatterns = [
 ```
 ## CREATE Form / Template
 
-- [ ] Create form HTML file: ```myapp/templates/myapp/primary_form.html```
+- [ ] Create a ```forms.py``` file in ```myapp```:
+```python
+from django import forms
+from .models import Primary
 
+class PrimaryForm(forms.ModelForm):
 
+    class Meta:
+        model = Primary
+        fields = ('name',)
+```
+- [ ] Add Form View:
+```python
+# myapp/views.py
+from django.shortcuts import render, redirect
+
+from .forms import PrimaryForm
+
+def primary_create(request):
+    if request.method == 'POST':
+        form = PrimaryForm(request.POST)
+        if form.is_valid():
+            primary = form.save()
+            return redirect('primary_detail', pk=primary.pk)
+    else:
+        form = PrimaryForm()
+    return render(request, 'myapp/primary_form.html', {'form': form})
+```
+- [ ] Add Form URL:
+```python
+# myapp/urls.py
+path('primary/new', views.primary_create, name='primary_create'),
+```
+- [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_form.html```
+- [ ] Build out ```primary_form.html``` template:
+```html
+{% extends 'tunr/base.html' %} {% block content %}
+<h1>New Artist</h1>
+<form method="POST" class="artist-form">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit" class="save btn btn-default">Save</button>
+</form>
+{% endblock %}
+```
+- [ ] Add Create Link to ```primary_list.html```:
+```html
+<h2>Primary <a href="{% url 'primary_create' %}">(+)</a></h2>
+```
 ## CSS Styling
 
 - [ ] In ```myapp``` create a ```static``` directory with a ```css``` subdirectory
@@ -224,7 +269,7 @@ urlpatterns = [
 - [ ] Create myapp.css file: ```myapp/static/css/myapp.css```
 
 - [ ] Add static folder to ```base.html```:
-```
+```html
 {% load staticfiles %}
   <head>
     <title>MyApp</title>
