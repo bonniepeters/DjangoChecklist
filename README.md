@@ -149,7 +149,7 @@ urlpatterns = [
 ]
 ```
 
-## READ / Templates
+## READ
 
 - [ ] In ```myapp``` create a ```templates``` directory with a ```myapp``` subdirectory
 
@@ -190,7 +190,7 @@ urlpatterns = [
 
 {% endblock %}
 ```
-### READ
+### Show Template
 
 - [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_detail.html```
 
