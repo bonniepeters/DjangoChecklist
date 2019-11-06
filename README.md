@@ -24,13 +24,13 @@ NOTE: ```my_project``` is the base django project where we will handle our route
 
 ## Database Connection
 
-- [ ] Login to psql: ```$ psql -d postgres```
+- [ ] Login to psql: ```psql -d postgres```
 
 - [ ] Create a database:
 ```
 > CREATE DATABASE somedb;
 > CREATE USER myUser WITH PASSWORD 'user';
-> GRANT ALL PRIVILEGES ON DATABASE somedb TO myUser;
+> GRANT ALL PRIVILEGES ON DATABASE somedb TO myuser;
 > \q
 ```
 
@@ -39,8 +39,8 @@ NOTE: ```my_project``` is the base django project where we will handle our route
 DATABASES = {
   'default': {
     'ENGINE': 'django.db.backends.postgresql',
-    'NAME': 'myapp',
-    'USER': 'myUser',
+    'NAME': 'somedb',
+    'USER': 'myuser',
     'PASSWORD': 'user',
     'HOST': 'localhost'
    }
