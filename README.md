@@ -35,7 +35,7 @@ NOTE: ```my_project``` is the base django project where we will handle our route
 ```
 
 - [ ] Add Database details:
-```
+```python
 # my_project/settings.py
 DATABASES = {
   'default': {
