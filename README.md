@@ -320,3 +320,100 @@ path('posts/<int:pk>/delete', views.post_delete, name='post_delete'),
     <link rel="stylesheet" href="{% static 'css/myapp.css' %}" />
   </head>
 ```
+## Django REST Framework
+
+- [ ] Install the `djangorestframework`: pipenv install djangorestframework
+
+- [ ] Add ```'rest_framework',``` to your `INSTALLED_APPS` list in `settings.py` 
+
+- [ ] Add this variable as a new dictionary, anywhere in `settings.py`:
+
+```python
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
+```
+
+- [ ] In the `urls` list in `my_project/urls.py`, add the following to
+`urlpatterns`:
+
+```python
+path('api-auth', include('rest_framework.urls', namespace='rest_framework'))
+```
+
+## Serializers
+
+Note: the `HyperlinkedModelSerializer` allows you to link from one model to another.
+
+- [ ] Create a new file in `myapp` called `serializers.py`:
+
+```python
+from rest_framework import serializers
+from .models import Post
+
+class PostSerializer(serializers.HyperlinkedModelSerializer):
+    comment = serializers.HyperlinkedRelatedField(
+        view_name='comment_detail',
+        many=True,
+        read_only=True
+    )
+```
+- [ ] Add a Meta class **inside** the ArtistSerializer class:
+
+```python
+   class Meta:
+       model = Post
+       fields = ('id', 'photo_url', 'nationality', 'name', 'songs',)
+```
+
+## Views
+
+```py
+from rest_framework import generics
+from .serializers import PostSerializer
+from .models import Post
+
+class PostList(generics.ListCreateAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+
+class PostDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+```
+## URLs
+
+```py
+from django.urls import path
+from . import views
+from rest_framework.routers import DefaultRouter
+
+urlpatterns = [
+    path('posts', views.PostList.as_view(), name='post_list'),
+    path('posts/<int:pk>', views.PostDetail.as_view(), name='post_detail'),
+]
+```
+
+## Adding Fields with URLs to Detail Views
+
+```diff
+class PostSerializer(serializers.HyperlinkedModelSerializer):
+    comments = serializers.HyperlinkedRelatedField(
+        view_name='comment_detail',
+        many=True,
+        read_only=True,
+    )
+
++    post_url = serializers.ModelSerializer.serializer_url_field(
++        view_name='post_detail'
++    )
+
+    class Meta:
+        model = Post
+-        fields = ('id', 'photo_url', 'nationality', 'name', 'songs',)
++        fields = ('id', 'artist_url', 'photo_url', 'nationality', 'name', 'songs',)
+```
