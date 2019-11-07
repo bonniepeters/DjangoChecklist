@@ -52,7 +52,6 @@ DATABASES = {
 ```python
 # my_project/settings.py
 INSTALLED_APPS = [
-  '...',
   'myapp'
 ]
 ```
@@ -66,18 +65,18 @@ INSTALLED_APPS = [
 - [ ] Create desired models in ```myapp/models.py```:
 
 ```python
-class Primary(models.Model):
+class Post(models.Model):
     name = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name
 
-class Secondary(models.Model):
-    primary = models.ForeignKey(Primary, on_delete=models.CASCADE, related_name='secondaries')
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     title = models.CharField(max_length=100, default='untitled')
 
     def __str__(self):
-        return f"{self.primary.name} - {self.title}"
+        return f"{self.post.name} - {self.title}"
 ```
 
 ## Migrations
@@ -98,9 +97,9 @@ NOTE: Every time you make changes to your models, run ```makemigrations``` again
 
 ```python
 from django.contrib import admin
-from .models import Primary, Secondary
+from .models import Post, Comment
 
-admin.site.register(Primary, Secondary)
+admin.site.register(Post, Comment)
 ```
 ## Views
 
@@ -108,19 +107,19 @@ admin.site.register(Primary, Secondary)
 ```python
 from django.shortcuts import render
 
-from .models import Primary, Secondary
+from .models import Post, Comment
 ```
 - [ ] Create views:
 ```python
 # List View
-def primary_list(request):
-    primaries = Primary.objects.all()
-    return render(request, 'myapp/primary_list.html', {'primaries': primaries})
+def post_list(request):
+    posts = Post.objects.all()
+    return render(request, 'myapp/post_list.html', {'posts': posts})
     
 # Show View
-def primary_detail(request, pk):
-    primary = Primary.objects.get(id=pk)
-    return render(request, 'mya/artist_detail.html', {'artist': artist})
+def post_detail(request, pk):
+    post = Post.objects.get(id=pk)
+    return render(request, 'myapp/post_detail.html', {'post': post})
  ```
  ## URLs
  
@@ -143,9 +142,9 @@ from . import views
 
 urlpatterns = [
 # List URL
-    path('', views.primary_list, name='primary_list'),
+    path('', views.post_list, name='post_list'),
 # Show URL
-    path('primaries/<int:pk>', views.primary_detail, name='primary_detail'),
+    path('posts/<int:pk>', views.post_detail, name='post_detail'),
 ]
 ```
 
@@ -164,7 +163,7 @@ urlpatterns = [
   <body>
     <h1>MyApp</h1>
     <nav>
-      <a href="{% url 'primary_list' %}">Primaries</a>
+      <a href="{% url 'post_list' %}">Primaries</a>
     </nav>
     {% block content %} {% endblock %}
   </body>
@@ -172,18 +171,18 @@ urlpatterns = [
 
 ### List Template
 
-- [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_list.html```
+- [ ] In ```templates```'s ```myapp``` subdirectory create base ```post_list.html```
 
-- [ ] Build out ```primary_list.html``` template:
+- [ ] Build out ```post_list.html``` template:
 ```html
-{% extends 'tunr/base.html' %}
+{% extends 'myapp/base.html' %}
 {% block content %}
 
 <h2>Primaries <a href="">(+)</a></h2>
 <ul>
-  {% for primary in primaries %}
+  {% for post in posts %}
   <li>
-    <a href="{% url 'primary_detail' pk=primary.pk %}">{{ primary.name }}</a>
+    <a href="{% url 'post_detail' pk=post.pk %}">{{ post.name }}</a>
   </li>
   {% endfor %}
 </ul>
@@ -192,20 +191,20 @@ urlpatterns = [
 ```
 ### Show Template
 
-- [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_detail.html```
+- [ ] In ```templates```'s ```myapp``` subdirectory create base ```post_detail.html```
 
-- [ ] Build out ```primary_detail.html``` template:
+- [ ] Build out ```post_detail.html``` template:
 ```html
-{% extends 'tunr/base.html' %}
+{% extends 'myapp/base.html' %}
 {% block content %}
 
-<h2>{{ primary.name }} <a href="">(edit)</a></h2>
+<h2>{{ post.name }} <a href="">(edit)</a></h2>
 
 <h3>Secondaries <a href="">(+)</a></h3>
 <ul>
-  {% for secondary in primary.secondaries.all %}
+  {% for comment in post.comments.all %}
   <li>
-    <a href="">{{ secondary.title }}</a>
+    <a href="">{{ comment.title }}</a>
   </li>
   {% endfor %}
 </ul>
@@ -217,12 +216,12 @@ urlpatterns = [
 - [ ] Create a ```forms.py``` file in ```myapp```:
 ```python
 from django import forms
-from .models import Primary
+from .models import Post
 
-class PrimaryForm(forms.ModelForm):
+class PostForm(forms.ModelForm):
 
     class Meta:
-        model = Primary
+        model = Post
         fields = ('name',)
 ```
 - [ ] Add Form View:
@@ -230,65 +229,65 @@ class PrimaryForm(forms.ModelForm):
 # myapp/views.py
 from django.shortcuts import render, redirect
 
-from .forms import PrimaryForm
+from .forms import PostForm
 
-def primary_create(request):
+def post_create(request):
     if request.method == 'POST':
-        form = PrimaryForm(request.POST)
+        form = PostForm(request.POST)
         if form.is_valid():
-            primary = form.save()
-            return redirect('primary_detail', pk=primary.pk)
+            post = form.save()
+            return redirect('post_detail', pk=post.pk)
     else:
-        form = PrimaryForm()
-    return render(request, 'myapp/primary_form.html', {'form': form})
+        form = PostForm()
+    return render(request, 'myapp/post_form.html', {'form': form})
 ```
 - [ ] Add Form URL:
 ```python
 # myapp/urls.py
-path('primary/new', views.primary_create, name='primary_create'),
+path('post/new', views.post_create, name='post_create'),
 ```
-- [ ] In ```templates```'s ```myapp``` subdirectory create base ```primary_form.html```
-- [ ] Build out ```primary_form.html``` template:
+- [ ] In ```templates```'s ```myapp``` subdirectory create base ```post_form.html```
+- [ ] Build out ```post_form.html``` template:
 ```html
-{% extends 'tunr/base.html' %} {% block content %}
-<h1>New Artist</h1>
-<form method="POST" class="artist-form">
+{% extends 'myapp/base.html' %} {% block content %}
+<h1>New Post</h1>
+<form method="POST" class="post-form">
   {% csrf_token %} {{ form.as_p }}
   <button type="submit" class="save btn btn-default">Save</button>
 </form>
 {% endblock %}
 ```
-- [ ] Add Create Link to ```primary_list.html```:
+- [ ] Add Create Link to ```post_list.html```:
 ```html
-<h2>Primary <a href="{% url 'primary_create' %}">(+)</a></h2>
+<h2>Post <a href="{% url 'post_create' %}">(+)</a></h2>
 ```
 
 ## UPDATE
 
 - [ ] Add Edit View:
 ```python
-# tunr/views.py
-def primary_edit(request, pk):
-    artist = Primary.objects.get(pk=pk)
+# myapp/views.py
+def post_edit(request, pk):
+    post = Post.objects.get(pk=pk)
     if request.method == "POST":
-        form = PrimaryForm(request.POST, instance=primary)
+        form = PostForm(request.POST, instance=post)
         if form.is_valid():
-            primary = form.save()
-            return redirect('primary_detail', pk=primary.pk)
+            post = form.save()
+            return redirect('post_detail', pk=post.pk)
     else:
-        form = PrimaryForm(instance=primary)
-    return render(request, 'tunr/primary_form.html', {'form': form})
+        form = PostForm(instance=post)
+    return render(request, 'myapp/post_form.html', {'form': form})
 ```
 - [ ] Add Edit URL:
 ```python
-# tunr/urls.py
-path('primary/<int:pk>/edit', views.primary_edit, name='primary_edit'),
+# myapp/urls.py
+path('post/<int:pk>/edit', views.post_edit, name='post_edit'),
 ```
 - [ ] Add Edit Link in Detail Template:
 ```html
-<!-- tunr/templates/myapp/primary_detail.html -->
+<!-- myapp/templates/myapp/post_detail.html -->
 <h2>
-  {{ primary.name }} <a href="{% url 'primary_edit' pk=primary.pk %}">(edit)</a>
+  {{ post.name }} <a href="{% url 'post_edit' pk=post.pk %}">(edit)</a>
 </h2>
 ```
 
@@ -297,14 +296,14 @@ path('primary/<int:pk>/edit', views.primary_edit, name='primary_edit'),
 - [ ] Add Delete View
 ```python
 # myapp/views.py
-def primary_delete(request, pk):
-    Primary.objects.get(id=pk).delete()
-    return redirect('primary_list')
+def post_delete(request, pk):
+    Post.objects.get(id=pk).delete()
+    return redirect('post_list')
 ```
 - [ ] Add Delete URL:
 ```python
-# tunr/urls.py
-path('artists/<int:pk>/delete', views.artist_delete, name='artist_delete'),
+# myapp/urls.py
+path('posts/<int:pk>/delete', views.post_delete, name='post_delete'),
 ```
 
 ## CSS Styling
